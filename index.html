@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>광고 성과 정리 프레임워크</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: #f5f6f8; color: #1a1a2e; line-height: 1.7; }
+
+  .hero {
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 60%, #2d1b69 100%);
+    color: #fff;
+    padding: 56px 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    left: -80px; bottom: -80px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(100,60,255,0.10);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: 40px; top: 30px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(0,200,150,0.07);
+  }
+  .hero .tag {
+    display: inline-block;
+    background: rgba(150,100,255,0.25);
+    color: #b39dff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .hero h1 { font-size: 30px; font-weight: 800; line-height: 1.35; margin-bottom: 12px; }
+  .hero p { font-size: 14px; color: rgba(255,255,255,0.6); max-width: 560px; line-height: 1.7; }
+  .hero .meta { margin-top: 24px; font-size: 13px; color: rgba(255,255,255,0.35); }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* 스텝 네비 */
+  .step-nav {
+    display: flex;
+    gap: 0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 8px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    overflow-x: auto;
+  }
+  .step-nav-item {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #999;
+    cursor: default;
+  }
+  .step-nav-item.active { background: #1a1a2e; color: #fff; }
+  .step-nav-item .step-num { font-size: 11px; font-weight: 700; display: block; margin-bottom: 2px; opacity: 0.6; }
+
+  /* 섹션 카드 */
+  .section {
+    margin-bottom: 32px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .section-num {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .num-1 { background: #e6f4ff; color: #0958d9; }
+  .num-2 { background: #f6ffed; color: #389e0d; }
+  .num-3 { background: #fff7e6; color: #d46b08; }
+  .num-4 { background: #f9f0ff; color: #531dab; }
+  .section-title { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+  .section-subtitle { font-size: 13px; color: #888; margin-top: 2px; }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.055);
+  }
+  .card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h3 .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* 지표 그리드 */
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+  @media (max-width: 600px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+  .metric-box {
+    background: #f7f8fa;
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .metric-box .m-icon { font-size: 20px; margin-bottom: 6px; }
+  .metric-box .m-name { font-size: 12px; font-weight: 700; color: #555; }
+  .metric-box .m-desc { font-size: 11px; color: #999; margin-top: 2px; line-height: 1.4; }
+
+  /* 볼륨/효율 구분 */
+  .ve-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 12px;
+  }
+  @media (max-width: 600px) { .ve-split { grid-template-columns: 1fr; } }
+  .ve-box { border-radius: 12px; padding: 18px 20px; }
+  .ve-box.volume { background: #e6f4ff; border: 1.5px solid #91caff; }
+  .ve-box.efficiency { background: #f6ffed; border: 1.5px solid #95de64; }
+  .ve-box .ve-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .ve-box.volume .ve-label { color: #0958d9; }
+  .ve-box.efficiency .ve-label { color: #389e0d; }
+  .ve-box .ve-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ve-item {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.75);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  /* 기간 타임라인 */
+  .period-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .period-box {
+    flex: 1;
+    min-width: 150px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .period-box.short { background: #fff0f6; border: 1.5px solid #ffadd2; }
+  .period-box.mid { background: #fff7e6; border: 1.5px solid #ffd591; }
+  .period-box.long { background: #f0f5ff; border: 1.5px solid #adc6ff; }
+  .period-box .p-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+  .period-box .p-name { font-size: 15px; font-weight: 800; color: #1a1a2e; }
+  .period-box .p-range { font-size: 12px; color: #999; margin-top: 4px; }
+
+  /* 이슈 뱃지 */
+  .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  @media (max-width: 500px) { .issue-grid { grid-template-columns: 1fr; } }
+  .issue-card {
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .issue-card.good { background: #f6ffed; border-left: 3px solid #52c41a; }
+  .issue-card.bad { background: #fff1f0; border-left: 3px solid #ff4d4f; }
+  .issue-card.stable { background: #f0f5ff; border-left: 3px solid #4096ff; }
+  .issue-card.unstable { background: #fff7e6; border-left: 3px solid #fa8c16; }
+  .issue-card .i-icon { font-size: 18px; flex-shrink: 0; }
+  .issue-card .i-label { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .issue-card .i-desc { font-size: 12px; color: #666; margin-top: 3px; line-height: 1.5; }
+
+  /* 채널 테이블 */
+  .channel-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+  .channel-table th {
+    background: #f7f8fa;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: #555;
+    font-size: 12px;
+    border-bottom: 2px solid #e8e8e8;
+  }
+  .channel-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    vertical-align: top;
+  }
+  .channel-table tr:last-child td { border-bottom: none; }
+  .channel-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .ch-meta { background: #e6f4ff; color: #0958d9; }
+  .ch-naver { background: #f6ffed; color: #389e0d; }
+  .ch-kakao { background: #fff7e6; color: #d46b08; }
+  .ch-gfa { background: #f9f0ff; color: #531dab; }
+  .ch-google { background: #fff1f0; color: #cf1322; }
+
+  /* 타임라인 그래프 (시각적) */
+  .chart-placeholder {
+    background: #f7f8fa;
+    border: 2px dashed #d9d9d9;
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .chart-placeholder .cp-icon { font-size: 28px; margin-bottom: 10px; }
+  .chart-placeholder .cp-title { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 6px; }
+  .chart-placeholder .cp-desc { font-size: 12px; color: #999; line-height: 1.6; }
+  .chart-placeholder .cp-tags { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+  .chart-placeholder .cp-tag {
+    background: #fff;
+    border: 1.5px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #666;
+    font-weight: 600;
+  }
+
+  /* 흐름 스텝 */
+  .step-flow { display: flex; flex-direction: column; gap: 0; }
+  .sf-item { display: flex; gap: 14px; align-items: flex-start; position: relative; }
+  .sf-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px; top: 42px;
+    width: 2px;
+    height: calc(100% - 12px);
+    background: #e0e0e0;
+  }
+  .sf-dot {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0; z-index: 1;
+  }
+  .sf-content { padding-bottom: 24px; flex: 1; }
+  .sf-content strong { display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .sf-content p { font-size: 13px; color: #666; }
+
+  /* 요약 박스 */
+  .summary-box {
+    background: linear-gradient(135deg, #1a1a2e, #2d1b69);
+    color: #fff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 14px;
+  }
+  .summary-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #b39dff; }
+  .summary-box .s-line {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6;
+  }
+  .summary-box .s-line span { font-size: 15px; flex-shrink: 0; }
+
+  /* 액션 카드 */
+  .action-card {
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .action-card.priority-high { background: #fff1f0; border: 1.5px solid #ffa39e; }
+  .action-card.priority-mid { background: #fff7e6; border: 1.5px solid #ffd591; }
+  .action-card.priority-low { background: #f0f5ff; border: 1.5px solid #adc6ff; }
+  .ac-priority {
+    flex-shrink: 0;
+    width: 56px; height: 24px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+  .ac-high { background: #ff4d4f; color: #fff; }
+  .ac-mid { background: #fa8c16; color: #fff; }
+  .ac-low { background: #4096ff; color: #fff; }
+  .ac-body strong { font-size: 14px; font-weight: 700; display: block; margin-bottom: 4px; }
+  .ac-body p { font-size: 13px; color: #666; line-height: 1.6; }
+
+  .divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
+  .note { font-size: 12px; color: #bbb; margin-top: 14px; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="tag">성과 정리 프레임워크</div>
+  <h1>광고 성과 정리 순서<br>— 어떻게 볼 것인가</h1>
+  <p>
+    전체 → 광고 전체 → 세부 채널 → 향후 액션 순으로 정리.<br>
+    큰 그림에서 원인을 좁혀가고, 데이터 기반으로 다음 행동을 결정하는 구조.
+  </p>
+  <div class="meta">바리바디 · 광고 성과 분석 AI · 2026-04-17</div>
+</div>
+
+<div class="container">
+
+  <!-- 네비 -->
+  <div class="step-nav">
+    <div class="step-nav-item active"><span class="step-num">STEP 1</span>전체 상황</div>
+    <div class="step-nav-item"><span class="step-num">STEP 2</span>광고 전체</div>
+    <div class="step-nav-item"><span class="step-num">STEP 3</span>세부 채널</div>
+    <div class="step-nav-item"><span class="step-num">STEP 4</span>향후 액션</div>
+  </div>
+
+  <!-- ===== STEP 1 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num num-1">1</div>
+      <div>
+        <div class="section-title">전체 상황 — 비즈니스 지표 먼저</div>
+        <div class="section-subtitle">광고를 보기 전에, 사업이 잘 되고 있는지 확인</div>
+      </div>
+    </div>
+
+    <!-- 핵심 지표 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#0958d9;"></span>핵심 지표 4가지</h3>
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="m-icon">💰</div>
+          <div class="m-name">매출</div>
+          <div class="m-desc">총 판매금액<br>채널별 합산</div>
+        </div>
+        <div class="metric-box">
+          <div class="m-icon">📢</div>
+          <div class="m-name">비용</div>
+          <div class="m-desc">광고비 합계<br>채널별 지출</div>
+        </div>
+        <div class="metric-box">
+          <div class="m-icon">📈</div>
+          <div class="m-name">ROAS</div>
+          <div class="m-desc">매출 ÷ 광고비<br>광고 수익률</div>
+        </div>
+        <div class="metric-box">
+          <div class="m-icon">🏦</div>
+          <div class="m-name">마진</div>
+          <div class="m-desc">매출 - 원가 - 수수료 - 배송비<br>실제 남은 금액</div>
+        </div>
+      </div>
+      <p class="note">※ 공헌이익 = 마진 - 광고비 / ROAS = 광고매출 ÷ 광고비 × 100</p>
+    </div>
+
+    <!-- 기간 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#389e0d;"></span>3가지 기간으로 나눠서 보기</h3>
+      <div class="period-row">
+        <div class="period-box short">
+          <div class="p-label">단기</div>
+          <div class="p-name">전주 · 전전주</div>
+          <div class="p-range">지난 2주 비교</div>
+        </div>
+        <div class="period-box mid">
+          <div class="p-label">중기</div>
+          <div class="p-name">이번 달</div>
+          <div class="p-range">월초~현재</div>
+        </div>
+        <div class="period-box long">
+          <div class="p-label">장기</div>
+          <div class="p-name">지난달 → 이번달</div>
+          <div class="p-range">전월 대비 추이</div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:12px;">단기는 "지금 뭔가 이상하다/좋다"를 포착, 중기는 현재 상태, 장기는 방향성 파악용.</p>
+    </div>
+
+    <!-- 이슈 판단 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#d46b08;"></span>이슈 판단 기준</h3>
+      <div class="issue-grid">
+        <div class="issue-card good">
+          <div class="i-icon">📈</div>
+          <div>
+            <div class="i-label">좋았다</div>
+            <div class="i-desc">매출/마진이 목표 이상이거나 전기 대비 명확히 상승</div>
+          </div>
+        </div>
+        <div class="issue-card bad">
+          <div class="i-icon">📉</div>
+          <div>
+            <div class="i-label">안좋았다</div>
+            <div class="i-desc">매출 하락, ROAS 급감, 마진 적자 전환</div>
+          </div>
+        </div>
+        <div class="issue-card stable">
+          <div class="i-icon">➡️</div>
+          <div>
+            <div class="i-label">일정했다</div>
+            <div class="i-desc">큰 등락 없이 유지, 안정적 운영 상태</div>
+          </div>
+        </div>
+        <div class="issue-card unstable">
+          <div class="i-icon">📊</div>
+          <div>
+            <div class="i-label">일정하지 못했다</div>
+            <div class="i-desc">매출/비용 변동 폭이 크고 예측 어려운 상태</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num num-2">2</div>
+      <div>
+        <div class="section-title">광고 전체 상황 — 채널별 비용·매출</div>
+        <div class="section-subtitle">전체 이슈와 광고가 어떻게 연결되는지 파악</div>
+      </div>
+    </div>
+
+    <!-- 볼륨/효율 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#0958d9;"></span>광고 지표를 볼 때 — 볼륨 vs 효율</h3>
+      <div class="ve-split">
+        <div class="ve-box volume">
+          <div class="ve-label">📦 볼륨 (얼마나 했나)</div>
+          <div class="ve-items">
+            <div class="ve-item">💸 비용</div>
+            <div class="ve-item">👁️ 노출수</div>
+            <div class="ve-item">🖱️ 클릭수</div>
+            <div class="ve-item">🛒 구매수</div>
+            <div class="ve-item">💰 매출액</div>
+          </div>
+        </div>
+        <div class="ve-box efficiency">
+          <div class="ve-label">⚡ 효율 (얼마나 잘 했나)</div>
+          <div class="ve-items">
+            <div class="ve-item">📡 CPM</div>
+            <div class="ve-item">🖱️ CPC</div>
+            <div class="ve-item">📊 CTR</div>
+            <div class="ve-item">📈 ROAS</div>
+            <div class="ve-item">🔄 CVR</div>
+          </div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:12px;">
+        볼륨만 보면 "많이 썼다"는 건 알지만 "잘 썼는지"를 모름.<br>
+        효율만 보면 "효율은 좋은데 매출이 작은" 경우를 놓침. 두 가지를 같이 봐야 함.
+      </p>
+    </div>
+
+    <!-- 채널별 정리 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#389e0d;"></span>채널별 상황 정리 방식</h3>
+      <table class="channel-table">
+        <thead>
+          <tr>
+            <th>채널</th>
+            <th>주로 보는 지표</th>
+            <th>특이사항</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="channel-badge ch-meta">메타</span></td>
+            <td>비용, 노출, 클릭, 구매, 매출, ROAS, CPM, CTR, CVR</td>
+            <td>픽셀 기반 → 자사몰 연결. cafe24 구매수 기준</td>
+          </tr>
+          <tr>
+            <td><span class="channel-badge ch-naver">네이버 검색광고</span></td>
+            <td>비용, 클릭수, 전환수, 전환매출, ROAS, CPC</td>
+            <td>브랜드 키워드 151,000원/일 고정 포함</td>
+          </tr>
+          <tr>
+            <td><span class="channel-badge ch-gfa">GFA</span></td>
+            <td>비용, 노출, 클릭, 전환</td>
+            <td>디스플레이 광고, UTM 세팅 여부 중요</td>
+          </tr>
+          <tr>
+            <td><span class="channel-badge ch-kakao">카카오</span></td>
+            <td>비용, 전환</td>
+            <td>marketing_daily 기준 (raw 아님)</td>
+          </tr>
+          <tr>
+            <td><span class="channel-badge ch-google">구글</span></td>
+            <td>비용, 전환, 매출</td>
+            <td>marketing_daily 기준</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:12px;">👉 어느 채널이 전체 광고비 중 비중이 가장 큰지 확인 → 다음 단계에서 해당 채널을 집중 분석</p>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num num-3">3</div>
+      <div>
+        <div class="section-title">세부 광고 상황 — 핵심 채널 깊게 보기</div>
+        <div class="section-subtitle">이슈의 원인을 찾고, 어떤 액션이 어떤 결과를 만들었는지 정리</div>
+      </div>
+    </div>
+
+    <!-- 지표 시계열 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#d46b08;"></span>기간 흐름에 따라 지표 정리 (선그래프 방식)</h3>
+      <div class="chart-placeholder">
+        <div class="cp-icon">📉</div>
+        <div class="cp-title">아래 지표들을 날짜 축으로 시각화</div>
+        <div class="cp-desc">
+          단순히 숫자 나열이 아니라, 시간 흐름에 따른 변화를 선으로 이어서<br>
+          어느 시점에 무슨 일이 있었는지 바로 보이게 만든다.
+        </div>
+        <div class="cp-tags">
+          <span class="cp-tag">💸 비용</span>
+          <span class="cp-tag">📡 CPM</span>
+          <span class="cp-tag">🖱️ 클릭수</span>
+          <span class="cp-tag">💵 CPC</span>
+          <span class="cp-tag">📊 CTR</span>
+          <span class="cp-tag">🛒 구매수</span>
+          <span class="cp-tag">💰 매출</span>
+          <span class="cp-tag">📈 ROAS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 액션 정리 -->
+    <div class="card">
+      <h3><span class="dot" style="background:#531dab;"></span>기간별 액션 정리</h3>
+      <div class="step-flow">
+        <div class="sf-item">
+          <div class="sf-dot" style="background:#e6f4ff;">🧪</div>
+          <div class="sf-content">
+            <strong>테스트 액션</strong>
+            <p>새 소재, 새 캠페인, 새 타겟팅 등을 시험했던 기간과 결과 정리.</p>
+          </div>
+        </div>
+        <div class="sf-item">
+          <div class="sf-dot" style="background:#f6ffed;">⚙️</div>
+          <div class="sf-content">
+            <strong>운영 액션</strong>
+            <p>예산 증감, 입찰가 조정, 비효율 광고 off 등 운영 최적화 내역.</p>
+          </div>
+        </div>
+        <div class="sf-item">
+          <div class="sf-dot" style="background:#fff7e6;">🎨</div>
+          <div class="sf-content">
+            <strong>소재 액션</strong>
+            <p>새 소재 등록, 기존 소재 교체, A/B 테스트 등 크리에이티브 변화.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 요약 -->
+    <div class="summary-box">
+      <h3>📝 종합 요약 템플릿</h3>
+      <div class="s-line">
+        <span>📌</span>
+        <div>"이번 기간에 <strong>[A 액션]</strong>과 <strong>[B 액션]</strong>을 진행했고,<br>그 결과 <strong>[C 지표]</strong>가 [올랐다/내렸다/유지됐다]."</div>
+      </div>
+      <div class="s-line">
+        <span>💡</span>
+        <div>"특히 <strong>[특정 액션]</strong>을 통해 <strong>[인사이트]</strong>를 얻었고,<br>이를 향후 운영에 반영할 예정이다."</div>
+      </div>
+      <div class="s-line">
+        <span>⚠️</span>
+        <div>"<strong>[이슈]</strong>가 발생했으며, 원인은 <strong>[원인]</strong>으로 파악됨.<br>→ 향후 [대응 방향]으로 접근 예정."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num num-4">4</div>
+      <div>
+        <div class="section-title">향후 액션 — 성과를 높이는 방향으로</div>
+        <div class="section-subtitle">과거 데이터 기반 · 성과 개선이 목적 · 우선순위 명확하게</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background:#531dab;"></span>액션 우선순위 판단 기준</h3>
+      <div class="action-card priority-high">
+        <div class="ac-priority ac-high">HIGH</div>
+        <div class="ac-body">
+          <strong>지금 성과를 직접 좌우하는 것</strong>
+          <p>ROAS가 낮은 채널 예산 조정, 전환율이 급락한 소재 교체, 비용 대비 효율이 가장 나쁜 캠페인 off</p>
+        </div>
+      </div>
+      <div class="action-card priority-mid">
+        <div class="ac-priority ac-mid">MID</div>
+        <div class="ac-body">
+          <strong>성과에 간접적으로 영향 주는 것</strong>
+          <p>타겟 확장 테스트, 새 소재 A/B 테스트, 랜딩페이지 개선 검토</p>
+        </div>
+      </div>
+      <div class="action-card priority-low">
+        <div class="ac-priority ac-low">LOW</div>
+        <div class="ac-body">
+          <strong>중장기 방향을 위한 것</strong>
+          <p>신규 채널 검토, 브랜딩 소재 기획, 추적 구조 개선</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background:#0958d9;"></span>액션 작성 원칙</h3>
+      <div class="step-flow">
+        <div class="sf-item">
+          <div class="sf-dot" style="background:#e6f4ff; font-size:14px;">📊</div>
+          <div class="sf-content">
+            <strong>데이터 근거 있어야 함</strong>
+            <p>"느낌"이 아니라 실제 지표 변화를 근거로 액션을 제안. "ROAS가 3주 연속 하락했으니 소재 교체" 형태로.</p>
+          </div>
+        </div>
+        <div class="sf-item">
+          <div class="sf-dot" style="background:#f6ffed; font-size:14px;">🎯</div>
+          <div class="sf-content">
+            <strong>성과가 높아지는 방향</strong>
+            <p>매출 증가, ROAS 개선, 마진 확대 중 어느 목표를 향한 액션인지 명시.</p>
+          </div>
+        </div>
+        <div class="sf-item">
+          <div class="sf-dot" style="background:#fff7e6; font-size:14px;">📅</div>
+          <div class="sf-content">
+            <strong>실행 기간 포함</strong>
+            <p>언제 실행하고, 언제 결과를 볼 것인지 기간 설정. "이번 주 내", "다음 2주" 등.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전체 요약 -->
+  <div class="summary-box" style="background: linear-gradient(135deg, #0a0a1a, #1a1a2e);">
+    <h3>🗺️ 전체 흐름 한눈에</h3>
+    <div class="s-line"><span>1️⃣</span><div><strong>전체 상황</strong> → 매출·비용·ROAS·마진 단기/중기/장기로 이슈 파악</div></div>
+    <div class="s-line"><span>2️⃣</span><div><strong>광고 전체</strong> → 이슈와 연결되는 채널별 비중 확인, 집중 채널 선정</div></div>
+    <div class="s-line"><span>3️⃣</span><div><strong>세부 채널</strong> → 볼륨+효율 지표 시계열로 보고, 액션과 결과 매핑, 요약 작성</div></div>
+    <div class="s-line"><span>4️⃣</span><div><strong>향후 액션</strong> → 데이터 기반, 성과 개선 방향, 우선순위 붙여서 정리</div></div>
+  </div>
+
+</div>
+</body>
+</html>
