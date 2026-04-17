@@ -283,6 +283,15 @@
     font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6;
   }
   .summary-box .s-line span { font-size: 15px; flex-shrink: 0; }
+  .summary-box .s-line.highlight {
+    background: rgba(179,157,255,0.18);
+    border: 1.5px solid rgba(179,157,255,0.45);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+  }
 
   /* 액션 카드 */
   .action-card {
@@ -371,7 +380,6 @@
           <div class="m-desc">매출 - 원가 - 수수료 - 배송비<br>실제 남은 금액</div>
         </div>
       </div>
-      <p class="note">※ 공헌이익 = 마진 - 광고비 / ROAS = 광고매출 ÷ 광고비 × 100</p>
     </div>
 
     <!-- 기간 -->
@@ -391,7 +399,7 @@
         <div class="period-box long">
           <div class="p-label">장기</div>
           <div class="p-name">지난달 → 이번달</div>
-          <div class="p-range">전월 대비 추이</div>
+          <div class="p-range">전월 대비 추이<br>또는 여러 달 흐름 비교</div>
         </div>
       </div>
       <p class="note" style="margin-top:12px;">단기는 "지금 뭔가 이상하다/좋다"를 포착, 중기는 현재 상태, 장기는 방향성 파악용.</p>
@@ -482,34 +490,28 @@
           <tr>
             <th>채널</th>
             <th>주로 보는 지표</th>
-            <th>특이사항</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><span class="channel-badge ch-meta">메타</span></td>
             <td>비용, 노출, 클릭, 구매, 매출, ROAS, CPM, CTR, CVR</td>
-            <td>픽셀 기반 → 자사몰 연결. cafe24 구매수 기준</td>
           </tr>
           <tr>
             <td><span class="channel-badge ch-naver">네이버 검색광고</span></td>
             <td>비용, 클릭수, 전환수, 전환매출, ROAS, CPC</td>
-            <td>브랜드 키워드 151,000원/일 고정 포함</td>
           </tr>
           <tr>
             <td><span class="channel-badge ch-gfa">GFA</span></td>
             <td>비용, 노출, 클릭, 전환</td>
-            <td>디스플레이 광고, UTM 세팅 여부 중요</td>
           </tr>
           <tr>
             <td><span class="channel-badge ch-kakao">카카오</span></td>
             <td>비용, 전환</td>
-            <td>marketing_daily 기준 (raw 아님)</td>
           </tr>
           <tr>
             <td><span class="channel-badge ch-google">구글</span></td>
             <td>비용, 전환, 매출</td>
-            <td>marketing_daily 기준</td>
           </tr>
         </tbody>
       </table>
@@ -581,15 +583,15 @@
     <!-- 요약 -->
     <div class="summary-box">
       <h3>📝 종합 요약 템플릿</h3>
-      <div class="s-line">
+      <div class="s-line highlight">
         <span>📌</span>
-        <div>"이번 기간에 <strong>[A 액션]</strong>과 <strong>[B 액션]</strong>을 진행했고,<br>그 결과 <strong>[C 지표]</strong>가 [올랐다/내렸다/유지됐다]."</div>
+        <div>해당 분석 기간 동안 <strong>[어떤어떤 액션/활동]</strong>을 해서<br><strong>[이런 결과]</strong>가 나왔습니다.</div>
       </div>
-      <div class="s-line">
+      <div class="s-line highlight">
         <span>💡</span>
-        <div>"특히 <strong>[특정 액션]</strong>을 통해 <strong>[인사이트]</strong>를 얻었고,<br>이를 향후 운영에 반영할 예정이다."</div>
+        <div><strong>[이런 액션]</strong>을 해서<br><strong>[이런 인사이트]</strong>를 얻었습니다.</div>
       </div>
-      <div class="s-line">
+      <div class="s-line" style="margin-top:4px;">
         <span>⚠️</span>
         <div>"<strong>[이슈]</strong>가 발생했으며, 원인은 <strong>[원인]</strong>으로 파악됨.<br>→ 향후 [대응 방향]으로 접근 예정."</div>
       </div>
